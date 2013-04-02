@@ -5,7 +5,7 @@ import random
 try:
      from skein import skein1024
 except ImportError:
-     print('Error: this program requires the PySkein module in order to run.')
+     print('Error: this program requires the PySkein module and Python 3 in order to run.')
      exit(1)
 
 
@@ -45,7 +45,7 @@ def simulated_annealing(idnum):
      while(True):
           if generation % 50 == 0:
                print('Core: {}, Generation {}, best value: {}'.format(idnum, generation, best_value))
-          successors = sa_gen_successors(best_string)
+          successors = sa_gen_successors(best_string, 0.3)
           best_loc_str = max(successors, key=lambda x: compare(digest_str(x)))
           best_loc_val = compare(digest_str(best_loc_str))
           if best_loc_val < best_value:
@@ -61,10 +61,14 @@ def simulated_annealing(idnum):
           generation += 1
 
 
-def sa_gen_successors(string_in):
+def sa_gen_successors(string_in, temperature):
      neighbor_strings = []
-     for x in range(100):
-          neighbor_strings.append(''.join(map(lambda x: chr(ord(x) ^ random.randint(1, 128) % 127), string_in)))
+     for x in range(1000):
+          str_list = list(string_in)
+          for char in str_list:
+               if random.random() <= temperature:
+                    char = random.choice(string.ascii_uppercase + string.digits)
+          neighbor_strings.append(''.join(str_list))
      return neighbor_strings
           
 
