@@ -38,7 +38,35 @@ def hash_brute_force(idnum):
 	    
             write_to_file(idnum, rand_str + ' ' + str(diff_bits))
         attempt += 1
-    
+
+def simulated_annealing(idnum):
+     best_string = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(256))
+     best_value = compare(digest_str(start_string), target)
+     generation = 0
+     while(True):
+          if generation % 5000 == 0:
+               print('Generation {}, best value: {}'.format(generation, best_value))
+          successors = sa_gen_successors(best_string)
+          best_loc_str = max(successors, key=lambda x: compare(digest_str(x)))
+          best_loc_val = compare(digest_str(best_loc_str))
+          if best_loc_val > best_value:
+               best_value = best_loc_val
+               best_string = best_loc_str
+               write_to_file(idnum, best_loc_str + ' ' + best_loc_val)
+          else:
+               transition_prob = float(best_loc_val)/float(best_value)
+               if random.random <= transition_prob:
+                    best_value = best_loc_val
+                    best_string = best_loc_str
+                    write_to_file(idnum, best_loc_str + ' ' + best_loc_val)
+
+
+def sa_gen_successors(string_in):
+     neighbor_strings = []
+     for x in range(100):
+          neighbor_strings.append(''.join(map(lambda x: ord(x) ^ random.randint(1, 128), string_in)))
+          
+
 def digest_str(string_in):
     return skein1024(bytes(string_in, 'ascii')).hexdigest()
 
